@@ -37,9 +37,10 @@
   </g>
 </svg>`;
 
-  const t = (en, ru = en) => ({ en, ru });
+  const t = (en, ar, es, zh, ru, fr, de) => ({ en, ar, es, zh, ru, fr, de });
+  const text = (value, lang) => (typeof value === "string" ? value : value[lang] || value.en);
   const makePage = ({ code, badge, heading, message, title, wordCode = false }) => ({
-    title: title || t(`${code} ${badge}`),
+    title,
     badge,
     code,
     heading,
@@ -47,57 +48,106 @@
     wordCode
   });
 
-  const serviceUnavailable = t("Service temporarily unavailable", "Сервис временно недоступен");
+  const serviceUnavailable = t(
+    "Service temporarily unavailable",
+    "الخدمة غير متاحة مؤقتاً",
+    "El servicio no está disponible por ahora",
+    "服务暂时不可用",
+    "Сервис временно недоступен",
+    "Le service est temporairement indisponible",
+    "Der Dienst ist vorübergehend nicht verfügbar"
+  );
 
   const pages = {
     "404": makePage({
       code: "404",
-      badge: "Not Found",
-      heading: t("Page not found", "Страница не найдена"),
+      title: t("404 Not Found", "404 غير موجود", "404 No encontrado", "404 未找到", "404 Not Found", "404 Introuvable", "404 Nicht gefunden"),
+      badge: t("Not Found", "غير موجود", "No encontrado", "未找到", "Не найдено", "Introuvable", "Nicht gefunden"),
+      heading: t("Page not found", "الصفحة غير موجودة", "Página no encontrada", "页面不存在", "Страница не найдена", "Page introuvable", "Seite nicht gefunden"),
       message: t(
         "The link may be outdated or the address may be incorrect.",
-        "Возможно, ссылка устарела или адрес введён с ошибкой."
+        "قد يكون الرابط قديماً أو العنوان مكتوباً بشكل غير صحيح.",
+        "Puede que el enlace haya caducado o que la dirección esté mal escrita.",
+        "链接可能已失效，或地址输入有误。",
+        "Возможно, ссылка устарела или адрес введён с ошибкой.",
+        "Le lien a peut-être changé ou l’adresse contient une erreur.",
+        "Der Link ist möglicherweise veraltet oder die Adresse wurde falsch eingegeben."
       )
     }),
     "500": makePage({
       code: "500",
-      badge: "Internal Server Error",
-      heading: t("Internal server error", "Внутренняя ошибка сервера"),
-      message: t("Refresh the page or try again later.", "Попробуйте обновить страницу или вернуться позже.")
+      title: t("500 Internal Server Error", "500 خطأ داخلي في الخادم", "500 Error interno del servidor", "500 服务器内部错误", "500 Internal Server Error", "500 Erreur interne du serveur", "500 Interner Serverfehler"),
+      badge: t("Internal Server Error", "خطأ داخلي في الخادم", "Error interno del servidor", "服务器内部错误", "Ошибка сервера", "Erreur interne du serveur", "Interner Serverfehler"),
+      heading: t("Internal server error", "حدث خطأ داخل الخادم", "Error interno del servidor", "服务器出现内部错误", "Внутренняя ошибка сервера", "Erreur interne du serveur", "Interner Serverfehler"),
+      message: t(
+        "Refresh the page or try again later.",
+        "حدّث الصفحة أو حاول مرة أخرى لاحقاً.",
+        "Actualiza la página o inténtalo de nuevo más tarde.",
+        "请刷新页面，或稍后再试。",
+        "Попробуйте обновить страницу или вернуться позже.",
+        "Actualisez la page ou réessayez plus tard.",
+        "Aktualisiere die Seite oder versuche es später erneut."
+      )
     }),
     "502": makePage({
       code: "502",
-      badge: "Bad Gateway",
+      title: t("502 Bad Gateway", "502 بوابة غير صالحة", "502 Puerta de enlace incorrecta", "502 网关错误", "502 Bad Gateway", "502 Passerelle incorrecte", "502 Fehlerhaftes Gateway"),
+      badge: t("Bad Gateway", "بوابة غير صالحة", "Puerta de enlace incorrecta", "网关错误", "Ошибка шлюза", "Passerelle incorrecte", "Fehlerhaftes Gateway"),
       heading: serviceUnavailable,
-      message: t("Refresh the page in a few seconds.", "Попробуйте обновить страницу через несколько секунд.")
+      message: t(
+        "Refresh the page in a few seconds.",
+        "حدّث الصفحة بعد بضع ثوانٍ.",
+        "Actualiza la página dentro de unos segundos.",
+        "请几秒钟后刷新页面。",
+        "Попробуйте обновить страницу через несколько секунд.",
+        "Actualisez la page dans quelques secondes.",
+        "Aktualisiere die Seite in ein paar Sekunden."
+      )
     }),
     "503": makePage({
       code: "503",
-      badge: "Service Unavailable",
+      title: t("503 Service Unavailable", "503 الخدمة غير متاحة", "503 Servicio no disponible", "503 服务不可用", "503 Service Unavailable", "503 Service indisponible", "503 Dienst nicht verfügbar"),
+      badge: t("Service Unavailable", "الخدمة غير متاحة", "Servicio no disponible", "服务不可用", "Сервис недоступен", "Service indisponible", "Dienst nicht verfügbar"),
       heading: serviceUnavailable,
       message: t(
         "The service may be busy or under maintenance. Try again in a few minutes.",
-        "Сейчас он может быть перегружен или на обслуживании. Попробуйте снова через пару минут."
+        "قد تكون الخدمة مشغولة أو قيد الصيانة. حاول مرة أخرى بعد بضع دقائق.",
+        "El servicio puede estar ocupado o en mantenimiento. Vuelve a intentarlo en unos minutos.",
+        "服务可能正忙或正在维护。请几分钟后再试。",
+        "Сейчас он может быть перегружен или на обслуживании. Попробуйте снова через пару минут.",
+        "Le service est peut-être occupé ou en maintenance. Réessayez dans quelques minutes.",
+        "Der Dienst ist möglicherweise ausgelastet oder wird gewartet. Versuche es in ein paar Minuten erneut."
       )
     }),
     "504": makePage({
       code: "504",
-      badge: "Gateway Timeout",
-      heading: t("Response took too long", "Ответ занял слишком много времени"),
+      title: t("504 Gateway Timeout", "504 انتهت مهلة البوابة", "504 Tiempo de espera agotado", "504 网关超时", "504 Gateway Timeout", "504 Délai de passerelle dépassé", "504 Gateway-Zeitüberschreitung"),
+      badge: t("Gateway Timeout", "انتهت مهلة البوابة", "Tiempo de espera agotado", "网关超时", "Тайм-аут шлюза", "Délai dépassé", "Gateway-Zeitüberschreitung"),
+      heading: t("Response took too long", "استغرقت الاستجابة وقتاً طويلاً", "La respuesta tardó demasiado", "响应时间过长", "Ответ занял слишком много времени", "La réponse a pris trop de temps", "Die Antwort hat zu lange gedauert"),
       message: t(
         "The service did not respond in time. Refresh the page in a few seconds.",
-        "Сервис не успел ответить. Попробуйте обновить страницу через несколько секунд."
+        "لم تستجب الخدمة في الوقت المناسب. حدّث الصفحة بعد بضع ثوانٍ.",
+        "El servicio no respondió a tiempo. Actualiza la página dentro de unos segundos.",
+        "服务未能及时响应。请几秒钟后刷新页面。",
+        "Сервис не успел ответить. Попробуйте обновить страницу через несколько секунд.",
+        "Le service n’a pas répondu à temps. Actualisez la page dans quelques secondes.",
+        "Der Dienst hat nicht rechtzeitig geantwortet. Aktualisiere die Seite in ein paar Sekunden."
       )
     }),
     unbound: makePage({
       code: "NO LINK",
-      badge: "Address Not Linked",
-      title: t("Address Not Linked", "Адрес не привязан"),
+      badge: t("Address Not Linked", "العنوان غير مرتبط", "Dirección sin vincular", "地址未绑定", "Адрес не привязан", "Adresse non liée", "Adresse nicht verknüpft"),
+      title: t("Address Not Linked", "العنوان غير مرتبط", "Dirección sin vincular", "地址未绑定", "Адрес не привязан", "Adresse non liée", "Adresse nicht verknüpft"),
       wordCode: true,
-      heading: t("Address is not linked to a service", "Адрес не привязан к сервису"),
+      heading: t("Address is not linked to a service", "هذا العنوان غير مرتبط بأي خدمة", "Esta dirección no está vinculada a ningún servicio", "此地址尚未绑定到任何服务", "Адрес не привязан к сервису", "Cette adresse n’est liée à aucun service", "Diese Adresse ist mit keinem Dienst verknüpft"),
       message: t(
         "DNS already points to Reynard Cloud, but this address has not been assigned to a service in the control panel.",
-        "DNS уже указывает на Reynard Cloud, но для этого адреса ещё не выбран сервис в панели управления."
+        "يشير DNS بالفعل إلى Reynard Cloud، لكن لم يتم اختيار خدمة لهذا العنوان في لوحة التحكم بعد.",
+        "El DNS ya apunta a Reynard Cloud, pero esta dirección aún no se ha asignado a un servicio en el panel de control.",
+        "DNS 已指向 Reynard Cloud，但此地址尚未在控制面板中分配到具体服务。",
+        "DNS уже указывает на Reynard Cloud, но для этого адреса ещё не выбран сервис в панели управления.",
+        "Le DNS pointe déjà vers Reynard Cloud, mais aucun service n’a encore été associé à cette adresse dans le panneau de contrôle.",
+        "DNS zeigt bereits auf Reynard Cloud, aber diese Adresse wurde im Control Panel noch keinem Dienst zugewiesen."
       )
     })
   };
@@ -107,8 +157,28 @@
       refresh: "Refresh page",
       poweredBy: "Powered by"
     },
+    ar: {
+      refresh: "تحديث الصفحة",
+      poweredBy: "Powered by"
+    },
+    es: {
+      refresh: "Actualizar página",
+      poweredBy: "Powered by"
+    },
+    zh: {
+      refresh: "刷新页面",
+      poweredBy: "Powered by"
+    },
     ru: {
       refresh: "Обновить страницу",
+      poweredBy: "Powered by"
+    },
+    fr: {
+      refresh: "Actualiser la page",
+      poweredBy: "Powered by"
+    },
+    de: {
+      refresh: "Seite aktualisieren",
       poweredBy: "Powered by"
     }
   };
@@ -495,8 +565,15 @@ p {
   root.style.setProperty("--s3-y", vertical(8));
 
   const getLang = () => {
+    const supported = new Set(["en", "ar", "es", "zh", "ru", "fr", "de"]);
     const languages = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
-    return languages.some((value) => String(value).toLowerCase().startsWith("ru")) ? "ru" : "en";
+    for (const value of languages) {
+      const base = String(value || "").toLowerCase().split(/[-_]/)[0];
+      if (supported.has(base)) {
+        return base;
+      }
+    }
+    return "en";
   };
 
   const getPageKey = () => {
@@ -533,7 +610,8 @@ p {
   const codeClass = page.wordCode ? "code word" : "code";
 
   document.documentElement.lang = lang;
-  document.title = page.title[lang] || page.title.en;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.title = text(page.title, lang);
   setFavicon();
   injectStyle();
 
@@ -550,10 +628,10 @@ p {
       <span class="sphere three" aria-hidden="true"></span>
 
       <section class="content">
-        <div class="badge">${page.badge}</div>
+        <div class="badge">${text(page.badge, lang)}</div>
         <p class="${codeClass}" aria-hidden="true">${page.code}</p>
-        <h1 id="title">${page.heading[lang] || page.heading.en}</h1>
-        <p>${page.message[lang] || page.message.en}</p>
+        <h1 id="title">${text(page.heading, lang)}</h1>
+        <p>${text(page.message, lang)}</p>
         <a class="reload" href="">${labels.refresh}</a>
       </section>
 
