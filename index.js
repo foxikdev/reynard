@@ -39,13 +39,16 @@
 
   const t = (en, ar, es, zh, ru, fr, de) => ({ en, ar, es, zh, ru, fr, de });
   const text = (value, lang) => (typeof value === "string" ? value : value[lang] || value.en);
-  const makePage = ({ code, badge, heading, message, title, wordCode = false }) => ({
+  const makePage = ({ code, badge, heading, message, title, wordCode = false, variant = "error", showReload = true, showBadge = true }) => ({
     title,
     badge,
     code,
     heading,
     message,
-    wordCode
+    wordCode,
+    variant,
+    showReload,
+    showBadge
   });
 
   const serviceUnavailable = t(
@@ -57,6 +60,42 @@
     "Le service est temporairement indisponible",
     "Der Dienst ist vorübergehend nicht verfügbar"
   );
+
+  const browserCheckPage = makePage({
+    code: "",
+    badge: "",
+    title: t("Browser Check", "فحص المتصفح", "Comprobación del navegador", "浏览器检查", "Проверка браузера", "Vérification du navigateur", "Browserprüfung"),
+    variant: "browser-check",
+    showReload: false,
+    showBadge: false,
+    heading: t("Checking browser", "جارٍ فحص المتصفح", "Comprobando el navegador", "正在检查浏览器", "Проверяем браузер", "Vérification du navigateur", "Browser wird geprüft"),
+    message: t(
+      "Please wait, this will take a few seconds.",
+      "يرجى الانتظار، سيستغرق ذلك بضع ثوانٍ.",
+      "Espera un momento, esto tomará unos segundos.",
+      "请稍候，这需要几秒钟。",
+      "Пожалуйста, подождите, это займёт несколько секунд.",
+      "Veuillez patienter, cela prendra quelques secondes.",
+      "Bitte warte, das dauert ein paar Sekunden."
+    )
+  });
+
+  const clientErrorPage = makePage({
+    code: "ERROR",
+    title: t("Error", "خطأ", "Error", "错误", "Ошибка", "Erreur", "Fehler"),
+    badge: t("Error", "خطأ", "Error", "错误", "Ошибка", "Erreur", "Fehler"),
+    heading: t("Something went wrong", "حدث خطأ ما", "Algo salió mal", "出现问题", "Что-то пошло не так", "Une erreur est survenue", "Etwas ist schiefgelaufen"),
+    message: t(
+      "Refresh the page or try again later.",
+      "حدّث الصفحة أو حاول مرة أخرى لاحقاً.",
+      "Actualiza la página o inténtalo de nuevo más tarde.",
+      "请刷新页面，或稍后再试。",
+      "Обновите страницу или попробуйте позже.",
+      "Actualisez la page ou réessayez plus tard.",
+      "Aktualisiere die Seite oder versuche es später erneut."
+    ),
+    wordCode: true
+  });
 
   const pages = {
     "404": makePage({
@@ -74,6 +113,22 @@
         "Der Link ist möglicherweise veraltet oder die Adresse wurde falsch eingegeben."
       )
     }),
+    "403": makePage({
+      code: "403",
+      title: t("403 Forbidden", "403 ممنوع", "403 Prohibido", "403 禁止访问", "403 Forbidden", "403 Accès interdit", "403 Zugriff verweigert"),
+      badge: t("Access Blocked", "تم حظر الوصول", "Acceso bloqueado", "访问已被阻止", "Доступ заблокирован", "Accès bloqué", "Zugriff blockiert"),
+      heading: t("Access blocked", "تم حظر الوصول", "Acceso bloqueado", "访问已被阻止", "Доступ заблокирован", "Accès bloqué", "Zugriff blockiert"),
+      message: t(
+        "This request cannot be processed from your connection.",
+        "لا يمكن معالجة هذا الطلب من اتصالك.",
+        "Esta solicitud no se puede procesar desde tu conexión.",
+        "无法从你的连接处理此请求。",
+        "Этот запрос не может быть обработан с вашего подключения.",
+        "Cette requête ne peut pas être traitée depuis votre connexion.",
+        "Diese Anfrage kann über deine Verbindung nicht verarbeitet werden."
+      )
+    }),
+    error: clientErrorPage,
     "500": makePage({
       code: "500",
       title: t("500 Internal Server Error", "500 خطأ داخلي في الخادم", "500 Error interno del servidor", "500 服务器内部错误", "500 Internal Server Error", "500 Erreur interne du serveur", "500 Interner Serverfehler"),
@@ -149,7 +204,10 @@
         "Le DNS pointe déjà vers Reynard Cloud, mais aucun service n’a encore été associé à cette adresse dans le panneau de contrôle.",
         "DNS zeigt bereits auf Reynard Cloud, aber diese Adresse wurde im Control Panel noch keinem Dienst zugewiesen."
       )
-    })
+    }),
+    waf: browserCheckPage,
+    pow: browserCheckPage,
+    "browser-check": browserCheckPage
   };
 
   const i18n = {
@@ -308,12 +366,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: clamp(16px, 3vh, 26px);
+  width: 100%;
   min-width: 0;
   padding-bottom: clamp(12px, 3vh, 28px);
   text-align: center;
 }
 .badge,
 .code,
+.check-visual,
 h1,
 p,
 .reload,
@@ -322,6 +382,7 @@ p,
 }
 .badge { animation-delay: 60ms; }
 .code { animation-delay: 120ms; }
+.check-visual { animation-delay: 120ms; }
 h1 { animation-delay: 180ms; }
 p { animation-delay: 230ms; }
 .reload { animation-delay: 280ms; }
@@ -356,6 +417,37 @@ p { animation-delay: 230ms; }
   background: var(--orange);
   box-shadow: 0 0 22px rgba(255, 138, 31, 0.86);
   content: "";
+}
+.check-visual {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: auto;
+  min-height: 24px;
+  margin-bottom: clamp(2px, 0.8vh, 8px);
+}
+.check-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 16px rgba(255, 138, 31, 0.42);
+  opacity: 0.36;
+  transform: scale(0.82);
+  animation: dot-wait 1.35s ease-in-out infinite;
+}
+.check-dot:nth-child(2) {
+  animation-delay: 160ms;
+}
+.check-dot:nth-child(3) {
+  animation-delay: 320ms;
+}
+@keyframes dot-wait {
+  0%, 100% { opacity: 0.32; transform: scale(0.78); }
+  42% { opacity: 1; transform: scale(1); }
 }
 .code {
   display: inline-block;
@@ -393,6 +485,15 @@ h1 {
   font-weight: 650;
   letter-spacing: -0.045em;
   line-height: 0.98;
+}
+.page.browser-check h1 {
+  max-width: 720px;
+  font-size: clamp(26px, 5.4vw, 54px);
+  letter-spacing: -0.035em;
+}
+.page.browser-check p {
+  width: min(100%, 620px);
+  max-width: calc(100vw - 48px);
 }
 p {
   max-width: 620px;
@@ -510,6 +611,8 @@ p {
   .content { gap: clamp(24px, 2.6vh, 34px); }
   .badge { min-height: 42px; padding: 10px 16px; font-size: 14px; }
   .badge::before { width: 10px; height: 10px; }
+  .check-visual { gap: 12px; min-height: 28px; }
+  .check-dot { width: 9px; height: 9px; }
   .code { font-size: clamp(210px, 12vw, 300px); }
   .code.word { font-size: clamp(132px, 6.4vw, 190px); }
   h1 { max-width: 980px; font-size: clamp(58px, 3.4vw, 76px); }
@@ -521,6 +624,7 @@ p {
 @media (max-height: 560px) {
   .page { padding-block: 12px; }
   .content { gap: 12px; padding-bottom: 8px; }
+  .check-visual { min-height: 20px; margin-bottom: 0; }
   .code { font-size: clamp(64px, 18vh, 104px); }
   .code.word { font-size: clamp(42px, 13vh, 76px); }
   h1 { font-size: clamp(24px, 8vh, 38px); }
@@ -530,6 +634,8 @@ p {
   .page { padding-block: 10px; }
   .content { gap: 8px; padding-bottom: 6px; }
   .badge { min-height: 28px; padding: 7px 11px; font-size: 10px; }
+  .check-visual { min-height: 18px; }
+  .check-dot { width: 7px; height: 7px; }
   .code { font-size: clamp(52px, 20vh, 76px); }
   .code.word { font-size: clamp(34px, 14vh, 54px); }
   h1 { font-size: clamp(22px, 8vh, 30px); }
@@ -540,6 +646,10 @@ p {
 }
 @media (max-width: 420px) {
   .page { padding-inline: 14px; }
+  .page.browser-check h1,
+  .page.browser-check p {
+    max-width: 320px;
+  }
   .reload { width: min(100%, 180px); }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -581,7 +691,7 @@ p {
     const scriptUrl = currentScript ? new URL(currentScript.src, window.location.href) : null;
     const scriptQuery = scriptUrl ? scriptUrl.search.slice(1).trim() : "";
     const pageQuery = window.location.search.slice(1).trim();
-    const fileMatch = window.location.pathname.match(/([^/\\\\]+)\\.html$/);
+    const fileMatch = window.location.pathname.match(/([^/\\]+)\.html$/);
     const fileKey = fileMatch ? fileMatch[1] : "";
     const candidate = scriptQuery || pageQuery || fileKey || "502";
 
@@ -608,6 +718,21 @@ p {
   const page = pages[pageKey];
   const labels = i18n[lang] || i18n.en;
   const codeClass = page.wordCode ? "code word" : "code";
+  const pageClass = page.variant === "browser-check" ? "page browser-check" : "page";
+  const mainVisual = page.variant === "browser-check"
+    ? `
+        <div class="check-visual" aria-hidden="true">
+          <span class="check-dot"></span>
+          <span class="check-dot"></span>
+          <span class="check-dot"></span>
+        </div>`
+    : `<p class="${codeClass}" aria-hidden="true">${page.code}</p>`;
+  const badge = page.showBadge
+    ? `<div class="badge">${text(page.badge, lang)}</div>`
+    : "";
+  const reloadLink = page.showReload
+    ? `<a class="reload" href="">${labels.refresh}</a>`
+    : "";
 
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -622,17 +747,17 @@ p {
   }
 
   app.innerHTML = `
-    <main class="page" aria-labelledby="title">
+    <main class="${pageClass}" aria-labelledby="title">
       <span class="sphere one" aria-hidden="true"></span>
       <span class="sphere two" aria-hidden="true"></span>
       <span class="sphere three" aria-hidden="true"></span>
 
       <section class="content">
-        <div class="badge">${text(page.badge, lang)}</div>
-        <p class="${codeClass}" aria-hidden="true">${page.code}</p>
+        ${badge}
+        ${mainVisual}
         <h1 id="title">${text(page.heading, lang)}</h1>
         <p>${text(page.message, lang)}</p>
-        <a class="reload" href="">${labels.refresh}</a>
+        ${reloadLink}
       </section>
 
       <footer class="host-wrap">
